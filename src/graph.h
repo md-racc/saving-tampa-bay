@@ -23,7 +23,7 @@ struct Node {
 class Graph {
 public:
   void addNode(long long id, double lat, double lon);
-  void addEdger(int from, int to, double length, double risk);
+  void addEdge(int from, int to, double length, double risk);
   bool load(const std::string &nodePath, const std::string &edgePath);
   int indexOf(long long id) const;
 
@@ -39,7 +39,7 @@ public:
 private:
   std::vector<std::vector<Edge>> adj_;
   std::vector<Node> nodes_;
-  std::unordered_map<long long, int> itToIndex_;
+  std::unordered_map<long long, int> idToIndex_;
 };
 
 struct Poi {
