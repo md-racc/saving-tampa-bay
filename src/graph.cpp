@@ -57,5 +57,77 @@ std::size_t Graph::edgeC() const {
 }
 
 // CSV LOADER
+bool Graph::load(const std::string &nodesPath, const std::string &edgesPath) {
+  adj_.clear();
+  nodes_.clear();
+  idToIndex_.clear();
 
-bool Graph::load(const std::string &nodePath, const std::string &edgePath) {}
+  std::ifstream nodesIn(nodesPath);
+  if (!nodesIn.is_open())
+    return fail(nodesPath, 0, "could not open nodes file");
+
+  std::string line;
+  int lineNo = 0;
+  readLine(nodesIn, line, lineNo); // skip header
+
+  while (readLine(nodesIn, line, lineNo)) {
+    if (line == "")
+      continue;
+
+    std::vector<std::string> f = splitCSV(line);
+    if (f.size() < 3)
+      return fail(nodesPath, lineNo, "bad line");
+
+    long long id;
+    double lat, lon;
+    try {
+      id = std::stoll(f[0]);
+      lat = std::stod(f[1]);
+      lon = std::stod(f[2]);
+    } catch (...) {
+      return fail(nodesPath, lineNo, "bad number");
+    }
+
+    if (idToIndex_.count(id) > 0)
+      return fail(nodesPath, lineNo, "duplicate id");
+
+    addNode(id, lat, lon);
+  }
+
+  std::ifstream edgesIn(edgesPath);
+  if (!edgesIn.is_open())
+    return fail(edgesPath, 0, "could not open edges file");
+
+  lineNo = 0;
+  readLine(edgesIn, line, lineNo); // skip header
+
+  while (readLine(edgesIn, line, lineNo)) {
+    if (line == "")
+      continue;
+
+    std::vector<std::string> f = splitCSV(line);
+    if (f.size() < 4)
+      return fail(edgesPath, lineNo, "bad line");
+
+    try {
+      long long fromId = std::stoll(f[0]);
+      long long toId = std::stoll(f[1]);
+      double length = std::stod(f[2]);
+      double risk = std::stod(f[3]);
+
+      int from = indexOf(fromId);
+      int to = indexOf(toId);
+      if (from == -1 || to == -1)
+        return fail(edgesPath, lineNo, "unknown node");
+
+      if (length < 0 || risk < 0 || risk > 1)
+        return fail(edgesPath, lineNo, "invalid length or risk");
+
+      addEdge(from, to, length, risk);
+    } catch (...) {
+      return fail(edgesPath, lineNo, "bad number");
+    }
+  }
+
+  return true;
+}
