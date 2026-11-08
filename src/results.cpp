@@ -1,5 +1,6 @@
 #include "results.h"
 
+#include <iomanip>
 #include <ostream>
 
 using namespace std;
@@ -15,4 +16,13 @@ void writeBenchmark(ostream& out, const string& algorithm,
         out << cost;
     }
     out << '\n';
+}
+
+void writeRouteHeader(ostream& out) {
+    out << "algorithm,sequence,node_id,lat,lon\n";
+}
+
+void writeRouteNode(ostream& out, const string& algorithm, int sequence,
+                    long long nodeId, double lat, double lon) {
+    out << setprecision(17) << algorithm << ',' << sequence << ',' << nodeId << ',' << lat << ',' << lon << '\n';
 }
