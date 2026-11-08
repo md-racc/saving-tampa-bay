@@ -24,8 +24,9 @@ each value effecting the algorithm’s weights.
 
 ## How to build/run
 
-Download the data by running :  python scripts/fetch_graph.py --dist 5000
-afterwards, 
+Download the data by running : python scripts/fetch_graph.py --dist 5000
+
+then,
 
 Build:
 
@@ -35,15 +36,13 @@ Afterwards, go to data/processed/places.csv and select the IDs for your starting
 
 ./bin/router data/processed/nodes.csv data/processed/edges.csv 1868658525 1020640107 0.5
 
-If you want more data points, you can change the 5000 to something like 16000, but this can take 10 minutes or longer to download.
+The '5000' number in the fetch_graph.py arguement specifies a radius of 5000m around downtown tampa, testing showed that a distance of 16000m was sufficient to reach 100k datapoints by way of vertices + edges. But this can take up to 10 minutes to fetch the data for the trial. 16000 is the default value pulled if ran without a arguement.
 
 ## How to create visuals
 
 Use the command in your terminal: python scripts/visualize.py data/processed/nodes.csv data/processed/edges.csv
 
 In your terminal and they will generate images in the output folder.
-
-
 
 ## Algorithms
 
