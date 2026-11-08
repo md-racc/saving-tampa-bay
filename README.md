@@ -22,6 +22,29 @@ nodes containing Id’s, latitude, longitude, and weighted by length. Additional
 flood-risk values will be assigned to each segment based on distance to water and elevation, with
 each value effecting the algorithm’s weights.
 
+## How to build/run
+
+Download the data by running :  python scripts/fetch_graph.py --dist 5000
+afterwards, 
+
+Build:
+
+make
+
+Afterwards, go to data/processed/places.csv and select the IDs for your starting and evacuation points. Then, with the command below, replace the first id with your starting selection and the second with your evacuation. The final number is the severity of the flood.
+
+./bin/router data/processed/nodes.csv data/processed/edges.csv 1868658525 1020640107 0.5
+
+If you want more data points, you can change the 5000 to something like 16000, but this can take 10 minutes or longer to download.
+
+## How to create visuals
+
+Use the command in your terminal: python scripts/visualize.py data/processed/nodes.csv data/processed/edges.csv
+
+In your terminal and they will generate images in the output folder.
+
+
+
 ## Algorithms
 
 We plan to implement two shortest-path algorithms **from scratch in C++** and
