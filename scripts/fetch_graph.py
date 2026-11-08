@@ -15,7 +15,7 @@ RAW_DIR = ROOT / "data" / "raw"
 OUT_DIR = ROOT / "data" / "processed"
 CENTER = (27.9506, -82.4572) # tampa
 
-DEFAULT_DIST_M = 10000
+DEFAULT_DIST_M = 16000
 WATER_RANGE_M = 1000.0 
 SAFE_ELEVATION_M = 10.0 
 WATER_WEIGHT = 0.5     
