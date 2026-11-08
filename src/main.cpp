@@ -106,10 +106,15 @@ int main(int argc, char **argv) {
   auto begin = Clock::now();
   PathResult dijkstraResult = dijkstra(graph, start, end);
   auto middle = Clock::now();
-  PathResult astarResult = astar(graph, start, end);
+  AStarSearch prepared(graph, start, end);
+  auto searchBegin = Clock::now();
+  PathResult astarResult = prepared.run();
   auto finish = Clock::now();
   double dijkstraMs = chrono::duration<double, milli>(middle - begin).count();
-  double astarMs = chrono::duration<double, milli>(finish - middle).count();
+  double astarMs = chrono::duration<double, milli>(finish - searchBegin).count();
+  double setupMs = chrono::duration<double, milli>(searchBegin - middle).count();
+  cout << "A* heuristic setup: " << setupMs << " ms, setup + search: "
+       << setupMs + astarMs << " ms\n";
 
   error_code error;
   filesystem::create_directories("output", error);
@@ -135,7 +140,7 @@ int main(int argc, char **argv) {
       cout << "route found, cost " << result.cost;
     else
       cout << "no route found";
-    cout << ", time " << times[i] << " ms, nodes explored "
+    cout << ", search time " << times[i] << " ms, nodes explored "
          << result.nodesExplored << '\n';
     writeBenchmark(benchmarks, names[i], result.found, times[i],
                    result.nodesExplored, result.cost);

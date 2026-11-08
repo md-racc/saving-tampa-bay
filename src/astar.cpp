@@ -14,28 +14,38 @@ double metersBetween(const Node& a, const Node& b) {
 
 } // namespace
 
-PathResult astar(const Graph& g, int src, int dst) {
-    if (!routing::validIndex(g, src) || !routing::validIndex(g, dst)) return {};
-    if (src == dst) return routing::search(g, src, dst, [](int) { return 0.0; });
+AStarSearch::AStarSearch(const Graph& g, int src, int dst)
+    : graph_(g), src_(src), dst_(dst) {
+    if (!routing::validIndex(g, src) || !routing::validIndex(g, dst) || src == dst) return;
 
     const auto& nodes = g.nodes();
     const auto& edges = routing::neighbors(g, 0);
-    std::vector<double> remaining(g.size());
+    remaining_.resize(g.size());
     for (std::size_t i = 0; i < nodes.size(); ++i) {
         double meters = metersBetween(nodes[i], nodes[dst]);
-        remaining[i] = std::isfinite(meters) ? meters : 0.0;
+        remaining_[i] = std::isfinite(meters) ? meters : 0.0;
     }
 
     // Keep the estimated savings along each road within its actual cost.
     // This also handles rounded lengths and graphs with different cost units.
-    double scale = 1.0;
+
     for (std::size_t from = 0; from < edges.size(); ++from) {
         for (const Edge& edge : edges[from]) {
-            double gain = remaining[from] - remaining[edge.to];
+            double gain = remaining_[from] - remaining_[edge.to];
             if (gain > 0 && edge.weight >= 0) {
-                scale = std::min(scale, edge.weight / gain);
+                scale_ = std::min(scale_, edge.weight / gain);
             }
         }
     }
-    return routing::search(g, src, dst, [&](int node) { return scale * remaining[node]; });
+}
+
+PathResult AStarSearch::run() const {
+    // No estimates are needed for invalid endpoints or a zero-length route.
+    return routing::search(graph_, src_, dst_, [this](int node) {
+        return remaining_.empty() ? 0.0 : scale_ * remaining_[node];
+    });
+}
+
+PathResult astar(const Graph& g, int src, int dst) {
+    return AStarSearch(g, src, dst).run();
 }
