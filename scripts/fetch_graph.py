@@ -52,7 +52,7 @@ def pull_graph(dist_m):
 
     print("[2/7] Keeping largest strong connected component...")
     G = ox.truncate.largest_component(G, strongly=True)
-    print(f"      kept {len(G):, } nodes, {G.number_of_edges():, } edges")
+    print(f"      kept {len(G):,} nodes, {G.number_of_edges():,} edges")
     return G
 
 
