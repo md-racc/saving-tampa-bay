@@ -118,7 +118,26 @@ def haversin(lat1,lon1,lat2,lon2):
     a = math.sin(dp / 2)** 2 + math.cos(p1)* math.cos(p2)*math.sin(dl/2)**2
     return 2*r *math.asin(math.sqrt(a))
 
+def snap_places(G):
+    print("[6/7] Snapping PoI to intersections...")
+    snapped = []
+    for p in PLACES:
+        distances = []
+        node_ids = []
+        for node_id in G.nodes:
+            d = haversin(p[2], p[3], G.nodes[node_id]["y"], G.nodes[node_id]["x"])
+            distances.append(d)
+            node_ids.append(node_id)
 
+        best_d = min(distances)
+        best_id = node_ids[distances.index(best_d)]
+
+        if best_d > 300:
+            print("     " + p[1] + "  " + p[0] + "  node " + str(best_id) + " (" + str(int(best_d)) + " m away) WARNING: far from road")
+        else:
+            print("     " + p[1] + "  " + p[0] + "  node " + str(best_id) + " (" + str(int(best_d)) + " m away)")
+        snapped.append((p[0], p[1], best_id))
+    return snapped
 # file writing
 
 def write_outputs(G, places):
