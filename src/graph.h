@@ -10,7 +10,7 @@
 struct Edge {
   int to;
   double weight;
-  double lenght{0};
+  double length{0};
   double risk{0};
 };
 
@@ -24,7 +24,7 @@ class Graph {
 public:
   void addNode(long long id, double lat, double lon);
   void addEdge(int from, int to, double length, double risk);
-  bool load(const std::string &nodePath, const std::string &edgePath);
+  bool loadCsv(const std::string &nodePath, const std::string &edgePath);
   int indexOf(long long id) const;
 
   const std::vector<std::vector<Edge>> &adjacent() const {

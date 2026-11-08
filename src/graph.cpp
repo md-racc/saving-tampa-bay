@@ -57,7 +57,7 @@ std::size_t Graph::edgeC() const {
 }
 
 // CSV LOADER
-bool Graph::load(const std::string &nodesPath, const std::string &edgesPath) {
+bool Graph::loadCsv(const std::string &nodesPath, const std::string &edgesPath) {
   adj_.clear();
   nodes_.clear();
   idToIndex_.clear();
