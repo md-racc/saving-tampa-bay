@@ -142,8 +142,7 @@ def snap_places(G):
 
 def write_outputs(G, places):
     print("[7/7] Writing CSVs ...")
-    if not ox.path.exists(OUT_DIR):
-        ox.makedirs(OUT_DIR)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     f = open(str(OUT_DIR) + "/nodes.csv", "w")
     f.write("id,lat,lon\n")
