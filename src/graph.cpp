@@ -131,3 +131,40 @@ bool Graph::load(const std::string &nodesPath, const std::string &edgesPath) {
 
   return true;
 }
+
+bool loadPoi(const std::string &path, const Graph &g, std::vector<Poi> &out) {
+  out.clear();
+
+  std::ifstream in(path);
+  if (!in)
+    return fail(path, 0, "cannot open file");
+
+  std::string line;
+  int lineNo = 0;
+  if (!readLine(in, line, lineNo))
+    return fail(path, 0, "file is empty");
+  // kip header ("name,kind,id").
+
+  while (readLine(in, line, lineNo)) {
+    if (line.empty())
+      continue;
+
+    std::vector<std::string> f = splitCSV(line);
+    if (f.size() < 3)
+      return fail(path, lineNo, "expected name,kind,id");
+
+    long long id;
+    try {
+      id = std::stoll(f[2]);
+    } catch (const std::exception &) {
+      return fail(path, lineNo, "not a number in: " + line);
+    }
+
+    int node = g.indexOf(id);
+    if (node < 0)
+      return fail(path, lineNo, "place uses a node id missing from nodes.csv");
+
+    out.push_back(Poi{f[0], f[1], node});
+  }
+  return true;
+}

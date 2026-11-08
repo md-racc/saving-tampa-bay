@@ -70,7 +70,7 @@ def populate_elevation(G):
 def populate_water_distance(G, dist_m):
     print("[4/7] Downloading water features and measuring water distance...")
     water = ox.features_from_point(CENTER, tags=WATER_TAGS, dist=dist_m + 2000)
-    water = water[~water.geometry.geom_type.isin(["Point, MultiPoint"])]
+    water = water[~water.geometry.geom_type.isin(["Point", "MultiPoint"])]
     water = ox.projection.project_gdf(water[["geometry"]])
 
     is_polygon = water.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
