@@ -25,7 +25,7 @@ def main():
     parser.add_argument("--routes", default="output/routes.csv")
     parser.add_argument("--benchmarks", default="output/benchmarks.csv")
     parser.add_argument("--output", default="output", help="directory for PNG files")
-        parser.add_argument("--severity", type=float, default=1.0,
+    parser.add_argument("--severity", type=float, default=1.0,
                         help="flood severity used for the run (0-1); scales road hazard")
     parser.add_argument("--affected", type=float, default=0.5,
                         help="hazard (risk x severity) at or above which a road counts as affected")
@@ -34,8 +34,16 @@ def main():
     try:
         nodes = {row["id"]: (float(row["lon"]), float(row["lat"]))
                  for row in read_csv(args.nodes, ("id", "lat", "lon"))}
-        roads = [(nodes[row["from"]], nodes[row["to"]])
-                 for row in read_csv(args.edges, ("from", "to"))]
+        roads, affected, hazards = [], [], []
+        for row in read_csv(args.edges, ("from", "to", "risk")):
+            segment = (nodes[row["from"]], nodes[row["to"]])
+            hazard = float(row["risk"]) * args.severity
+            if hazard >= args.affected:
+                affected.append(segment)
+                hazards.append(hazard)
+            else:
+                roads.append(segment)
+
         benchmarks = read_csv(args.benchmarks, ("algorithm", "found", "time_ms", "nodes_explored", "cost"))
         routes = {}
         for row in read_csv(args.routes, ("algorithm", "sequence", "lat", "lon")):
@@ -45,6 +53,12 @@ def main():
 
         fig, ax = plt.subplots(figsize=(10, 8))
         ax.add_collection(LineCollection(roads, colors="#b6bec8", linewidths=0.35, label="Road network"))
+        if affected:
+            flooded = LineCollection(affected, cmap="Purples", linewidths=0.9, label="Affected roads")
+            flooded.set_array(hazards)
+            flooded.set_clim(args.affected - 0.3, 1.0)  # keep the lightest affected road visible
+            ax.add_collection(flooded)
+            fig.colorbar(flooded, ax=ax, shrink=0.6, label="Flood hazard (risk x severity)")
         colors = {"Dijkstra": "#cf513d", "A*": "#2864b7"}
         for name, points in routes.items():
             points.sort()
@@ -66,7 +80,8 @@ def main():
                     ha="center", bbox={"facecolor": "white", "alpha": 0.9})
         ax.autoscale()
         ax.set_aspect("equal", adjustable="datalim")
-        ax.set(xlabel="Longitude", ylabel="Latitude", title="Evacuation routes")
+        ax.set(xlabel="Longitude", ylabel="Latitude",
+               title=f"Evacuation routes (severity {args.severity:g}, {len(affected)} affected roads)")
         ax.legend()
         fig.tight_layout()
         fig.savefig(os.path.join(args.output, "routes.png"), dpi=180)
