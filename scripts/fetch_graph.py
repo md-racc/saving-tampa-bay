@@ -48,7 +48,7 @@ def pull_graph(dist_m):
 
     print(f"[1/7] Downloading road network within {dist_m} m of downtown Tampa...")
     G = ox.graph_from_point(CENTER, dist=dist_m, network_type="drive")
-    print(f"      downloaded {len(G):, } nodes, {G.number_of_edges():,} edges")
+    print(f"      downloaded {len(G):,} nodes, {G.number_of_edges():,} edges")
 
     print("[2/7] Keeping largest strong connected component...")
     G = ox.truncate.largest_component(G, strongly=True)
