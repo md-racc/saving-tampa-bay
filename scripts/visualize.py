@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""Render routes and benchmarks after running the router.
-
-Example: python scripts/visualize.py data/processed/nodes.csv data/processed/edges.csv
-"""
 import argparse
 import csv
 import os
@@ -23,7 +19,7 @@ def read_csv(path, columns):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description="Render routes and benchmarks after running the router.")
     parser.add_argument("nodes", help="nodes CSV (id, lat, lon)")
     parser.add_argument("edges", help="edges CSV (from, to)")
     parser.add_argument("--routes", default="output/routes.csv")
