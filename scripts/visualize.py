@@ -25,6 +25,10 @@ def main():
     parser.add_argument("--routes", default="output/routes.csv")
     parser.add_argument("--benchmarks", default="output/benchmarks.csv")
     parser.add_argument("--output", default="output", help="directory for PNG files")
+        parser.add_argument("--severity", type=float, default=1.0,
+                        help="flood severity used for the run (0-1); scales road hazard")
+    parser.add_argument("--affected", type=float, default=0.5,
+                        help="hazard (risk x severity) at or above which a road counts as affected")
     args = parser.parse_args()
 
     try:
