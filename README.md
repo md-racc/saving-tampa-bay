@@ -22,27 +22,76 @@ nodes containing Id’s, latitude, longitude, and weighted by length. Additional
 flood-risk values will be assigned to each segment based on distance to water and elevation, with
 each value effecting the algorithm’s weights.
 
-## How to build/run
+## Requirements
 
-Download the data by running : python scripts/fetch_graph.py --dist 5000
+- g++ with C++17, and `make`
+- Python 3.10+ with `osmnx` and `matplotlib`
 
-then,
+```sh
+python -m venv .venv && source .venv/bin/activate
+pip install osmnx matplotlib
+```
 
-Build:
+## 1. Fetch the data
 
-make
+```sh
+python scripts/fetch_graph.py
+```
 
-Afterwards, go to data/processed/places.csv and select the IDs for your starting and evacuation points. Then, with the command below, replace the first id with your starting selection and the second with your evacuation. The final number is the severity of the flood.
+The default pulls all drivable roads within 16 km of downtown Tampa, about 100k data points
+(vertices + edges). The first run takes up to ~10 minutes (OSM download + elevation API).
+Results are cached in `data/raw/cache/`, so later runs are fast.
 
-./bin/router data/processed/nodes.csv data/processed/edges.csv 1868658525 1020640107 0.5
+For a quick test on a smaller graph, use `--dist 5000` (meters). Add `--no-elevation` to skip
+the elevation API; risk is then based on distance to water only.
 
-The '5000' number in the fetch_graph.py arguement specifies a radius of 5000m around downtown tampa, testing showed that a distance of 16000m was sufficient to reach 100k datapoints by way of vertices + edges. But this can take up to 10 minutes to fetch the data for the trial. 16000 is the default value pulled if ran without a arguement.
+Outputs: `data/processed/nodes.csv`, `edges.csv`, `places.csv`, and `data/raw/tampa_drive.graphml`.
 
-## How to create visuals
+If the download fails, the OSM server (Overpass) is overloaded. Wait a few minutes and re-run.
 
-Use the command in your terminal: python scripts/visualize.py data/processed/nodes.csv data/processed/edges.csv
+## 2. Build
 
-In your terminal and they will generate images in the output folder.
+```sh
+make            # builds bin/router
+make clean      # removes bin/
+```
+
+## 3. Run
+
+List the available start points and evacuation targets:
+
+```sh
+./bin/router data/processed/nodes.csv data/processed/edges.csv --list
+```
+
+Route from a start to a target at a given flood severity (0 = no flood, 1 = worst):
+
+```sh
+./bin/router data/processed/nodes.csv data/processed/edges.csv <start> <end> <severity>
+```
+
+`<start>` and `<end>` can be a number from `--list`, a place name in quotes, or a raw OSM node ID:
+
+```sh
+./bin/router data/processed/nodes.csv data/processed/edges.csv 2 9 0.5
+./bin/router data/processed/nodes.csv data/processed/edges.csv "Ybor City" "I-4 East at 40th St" 0.8
+```
+
+The program runs both algorithms on the same flooded graph and prints the route cost,
+execution time, and nodes explored for each. It also writes:
+
+- `output/benchmarks.csv`: algorithm, found, time_ms, nodes_explored, cost
+- `output/routes.csv`: each route as an ordered list of node IDs with lat/lon
+
+## 4. Visualize
+
+```sh
+python scripts/visualize.py data/processed/nodes.csv data/processed/edges.csv --severity 0.5
+```
+
+Pass the same `--severity` you used for the router, so the flooded-road shading matches the run.
+`--affected` (default 0.5) sets the hazard level (risk × severity) above which a road is drawn
+as affected.
 
 ## Algorithms
 
