@@ -11,7 +11,7 @@ from matplotlib.collections import LineCollection
 
 
 def read_csv(path, columns):
-    with open(path, newline="", encoding="utf-8-sig") as file:
+    with open(path, newline="", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         if not reader.fieldnames or not set(columns).issubset(reader.fieldnames):
             raise ValueError(f"{path} must have columns: {', '.join(columns)}")
@@ -47,7 +47,10 @@ def main():
         benchmarks = read_csv(args.benchmarks, ("algorithm", "found", "time_ms", "nodes_explored", "cost"))
         routes = {}
         for row in read_csv(args.routes, ("algorithm", "sequence", "lat", "lon")):
-            routes.setdefault(row["algorithm"], []).append(
+            algorithm = row["algorithm"]
+            if algorithm not in routes:
+                routes[algorithm] = []
+            routes[algorithm].append(
                 (int(row["sequence"]), float(row["lon"]), float(row["lat"])))
         os.makedirs(args.output, exist_ok=True)
 
@@ -64,11 +67,18 @@ def main():
             points.sort()
             longitudes = [point[1] for point in points]
             latitudes = [point[2] for point in points]
+            width = 1.8
+            style = "-"
+            marker = None
+            if name == "Dijkstra":
+                width = 3
+            if name == "A*":
+                style = "--"
+            if len(points) == 1:
+                marker = "o"
             ax.plot(longitudes, latitudes,
                     color=colors.get(name, "#287a57"),
-                    linewidth=3 if name == "Dijkstra" else 1.8,
-                    linestyle="--" if name == "A*" else "-",
-                    marker="o" if len(points) == 1 else None, label=name)
+                    linewidth=width, linestyle=style, marker=marker, label=name)
         if routes:
             first_route = next(iter(routes.values()))
             ax.scatter(first_route[0][1], first_route[0][2], marker="o", s=45,
