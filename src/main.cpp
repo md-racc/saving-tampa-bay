@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
   }
   Graph graph;
   if (!graph.loadCsv(argv[1], argv[2])) {
-    cerr << "Could not load graph data.\n";
+    cerr << "Graph data failed to load\n";
     return 1;
   }
   vector<Poi> places;
@@ -129,13 +129,13 @@ int main(int argc, char **argv) {
   error_code error;
   filesystem::create_directories("output", error);
   if (error) {
-    cerr << "Could not create output directory: " << error.message() << '\n';
+    cerr << "Output directory failed to create: " << error.message() << '\n';
     return 1;
   }
   ofstream benchmarks("output/benchmarks.csv");
   ofstream routes("output/routes.csv");
   if (!benchmarks || !routes) {
-    cerr << "Could not open output files.\n";
+    cerr << "The output files failed to open\n";
     return 1;
   }
   benchmarks << setprecision(17);
@@ -148,9 +148,9 @@ int main(int argc, char **argv) {
     const PathResult &result = *results[i];
     cout << names[i] << ": ";
     if (result.found) {
-      cout << "route found, cost " << result.cost;
+      cout << "a route was found, cost " << result.cost;
     } else {
-      cout << "no route found";
+      cout << "there was no route found";
     }
     cout << ", total time " << times[i] << " ms, nodes explored "
          << result.nodesExplored << '\n';
@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
       for (size_t j = 0; j < result.path.size(); ++j) {
         int index = result.path[j];
         if (index < 0 || static_cast<size_t>(index) >= graph.nodes().size()) {
-          cerr << "Algorithm returned an invalid node index.\n";
+          cerr << "The algorithm returned an invalid node index.\n";
           return 1;
         }
         const Node &node = graph.nodes()[index];
@@ -172,9 +172,9 @@ int main(int argc, char **argv) {
   benchmarks.close();
   routes.close();
   if (!benchmarks || !routes) {
-    cerr << "Could not write output files.\n";
+    cerr << "Failed to write output files\n";
     return 1;
   }
-  cout << "Results saved to output/benchmarks.csv and output/routes.csv.\n";
+  cout << "The results saved to output/benchmarks.csv and output/routes.csv.\n";
   return 0;
 }

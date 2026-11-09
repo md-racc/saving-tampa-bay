@@ -14,12 +14,12 @@ def read_csv(path, columns):
     with open(path, newline="", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         if not reader.fieldnames or not set(columns).issubset(reader.fieldnames):
-            raise ValueError(f"{path} must have columns: {', '.join(columns)}")
+            raise ValueError(f"{path} needs to have columns: {', '.join(columns)}")
         return list(reader)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Render routes and benchmarks after running the router.")
+    parser = argparse.ArgumentParser(description="Render routes and benchmarks.")
     parser.add_argument("nodes", help="nodes CSV (id, lat, lon)")
     parser.add_argument("edges", help="edges CSV (from, to)")
     parser.add_argument("--routes", default="output/routes.csv")
@@ -55,7 +55,7 @@ def main():
         os.makedirs(args.output, exist_ok=True)
 
         fig, ax = plt.subplots(figsize=(10, 8))
-        ax.add_collection(LineCollection(roads, colors="#b6bec8", linewidths=0.35, label="Road network"))
+        ax.add_collection(LineCollection(roads, colors="#b6bec8", linewidths=0.35, label="Roads Network"))
         if affected:
             flooded = LineCollection(affected, cmap="Purples", linewidths=0.9, label="Affected roads")
             flooded.set_array(hazards)
@@ -86,7 +86,7 @@ def main():
             ax.scatter(first_route[-1][1], first_route[-1][2], marker="*", s=120,
                        color="#202d45", edgecolors="white", zorder=5, label="Destination")
         else:
-            ax.text(0.5, 0.05, "No route found", transform=ax.transAxes,
+            ax.text(0.5, 0.05, "Route not found", transform=ax.transAxes,
                     ha="center", bbox={"facecolor": "white", "alpha": 0.9})
         ax.autoscale()
         ax.set_aspect("equal", adjustable="datalim")
@@ -115,9 +115,9 @@ def main():
         fig.savefig(os.path.join(args.output, "benchmarks.png"), dpi=180)
         plt.close(fig)
     except (OSError, ValueError, KeyError) as error:
-        print(f"Could not create visualizations: {error}", file=sys.stderr)
+        print(f"Visualization Failed: {error}", file=sys.stderr)
         return 1
-    print(f"Saved routes.png and benchmarks.png in {args.output}")
+    print(f"Saved png's in {args.output}")
     return 0
 
 
