@@ -2,4 +2,4 @@
 
 #include "graph.h"
 
-void applyFlood(Graph& graph, double severity);
+void applyFlood(Graph &graph, double severity);

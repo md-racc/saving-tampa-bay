@@ -119,10 +119,12 @@ int main(int argc, char **argv) {
   PathResult astarResult = prepared.run();
   auto finish = Clock::now();
   double dijkstraMs = chrono::duration<double, milli>(middle - begin).count();
-  double astarMs = chrono::duration<double, milli>(finish - searchBegin).count();
-  double setupMs = chrono::duration<double, milli>(searchBegin - middle).count();
-  cout << "A* heuristic setup: " << setupMs << " ms, setup + search: "
-       << setupMs + astarMs << " ms\n";
+  double astarMs =
+      chrono::duration<double, milli>(finish - searchBegin).count();
+  double setupMs =
+      chrono::duration<double, milli>(searchBegin - middle).count();
+  cout << "A* heuristic setup: " << setupMs
+       << " ms, setup + search: " << setupMs + astarMs << " ms\n";
 
   error_code error;
   filesystem::create_directories("output", error);
