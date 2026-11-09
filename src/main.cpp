@@ -19,12 +19,15 @@ using namespace std;
 static const char *PLACES_PATH = "data/processed/places.csv";
 
 static bool sameName(const string &a, const string &b) {
-  if (a.size() != b.size())
+  if (a.size() != b.size()) {
     return false;
-  for (size_t i = 0; i < a.size(); ++i)
+  }
+  for (size_t i = 0; i < a.size(); ++i) {
     if (tolower(static_cast<unsigned char>(a[i])) !=
-        tolower(static_cast<unsigned char>(b[i])))
+        tolower(static_cast<unsigned char>(b[i]))) {
       return false;
+    }
+  }
   return true;
 }
 
@@ -34,15 +37,18 @@ static int resolveNode(const string &arg, const Graph &graph,
   try {
     long long value = stoll(arg, &pos);
     if (pos == arg.size()) {
-      if (value >= 1 && static_cast<size_t>(value) <= places.size())
+      if (value >= 1 && static_cast<size_t>(value) <= places.size()) {
         return places[value - 1].node;
+      }
       return graph.indexOf(value);
     }
   } catch (const exception &) {
   }
-  for (const Poi &place : places)
-    if (sameName(place.name, arg))
+  for (const Poi &place : places) {
+    if (sameName(place.name, arg)) {
       return place.node;
+    }
+  }
   return -1;
 }
 
@@ -70,8 +76,9 @@ int main(int argc, char **argv) {
       string flood(argv[5]);
       severity = stod(flood, &pos);
       if (pos != flood.size() || !isfinite(severity) || severity < 0 ||
-          severity > 1)
+          severity > 1) {
         throw invalid_argument("severity");
+      }
     } catch (const exception &) {
       cerr << "Flood severity must be between 0 and 1.\n";
       return 1;
@@ -89,9 +96,10 @@ int main(int argc, char **argv) {
       cerr << "Could not load " << PLACES_PATH << ".\n";
       return 1;
     }
-    for (size_t i = 0; i < places.size(); ++i)
+    for (size_t i = 0; i < places.size(); ++i) {
       cout << setw(3) << i + 1 << ". [" << places[i].kind << "] "
            << places[i].name << '\n';
+    }
     return 0;
   }
   int start = resolveNode(argv[3], graph, places);
@@ -122,7 +130,8 @@ int main(int argc, char **argv) {
     cerr << "Could not create output directory: " << error.message() << '\n';
     return 1;
   }
-  ofstream benchmarks("output/benchmarks.csv"), routes("output/routes.csv");
+  ofstream benchmarks("output/benchmarks.csv");
+  ofstream routes("output/routes.csv");
   if (!benchmarks || !routes) {
     cerr << "Could not open output files.\n";
     return 1;
@@ -132,15 +141,16 @@ int main(int argc, char **argv) {
   writeRouteHeader(routes);
   const PathResult *results[] = {&dijkstraResult, &astarResult};
   string names[] = {"Dijkstra", "A*"};
-  double times[] = {dijkstraMs, astarMs};
+  double times[] = {dijkstraMs, setupMs + astarMs};
   for (int i = 0; i < 2; ++i) {
     const PathResult &result = *results[i];
     cout << names[i] << ": ";
-    if (result.found)
+    if (result.found) {
       cout << "route found, cost " << result.cost;
-    else
+    } else {
       cout << "no route found";
-    cout << ", search time " << times[i] << " ms, nodes explored "
+    }
+    cout << ", total time " << times[i] << " ms, nodes explored "
          << result.nodesExplored << '\n';
     writeBenchmark(benchmarks, names[i], result.found, times[i],
                    result.nodesExplored, result.cost);

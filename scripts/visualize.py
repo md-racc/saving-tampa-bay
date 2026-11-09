@@ -56,7 +56,7 @@ def main():
         if affected:
             flooded = LineCollection(affected, cmap="Purples", linewidths=0.9, label="Affected roads")
             flooded.set_array(hazards)
-            flooded.set_clim(args.affected - 0.3, 1.0)  # keep the lightest affected road visible
+            flooded.set_clim(args.affected - 0.3, 1.0)
             ax.add_collection(flooded)
             fig.colorbar(flooded, ax=ax, shrink=0.6, label="Flood hazard (risk x severity)")
         colors = {"Dijkstra": "#cf513d", "A*": "#2864b7"}
