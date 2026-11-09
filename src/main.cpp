@@ -75,8 +75,16 @@ int main(int argc, char **argv) {
       size_t pos;
       string flood(argv[5]);
       severity = stod(flood, &pos);
-      if (pos != flood.size() || !isfinite(severity) || severity < 0 ||
-          severity > 1) {
+      if (pos != flood.size()) {
+        throw invalid_argument("severity");
+      }
+      if (!isfinite(severity)) {
+        throw invalid_argument("severity");
+      }
+      if (severity < 0) {
+        throw invalid_argument("severity");
+      }
+      if (severity > 1) {
         throw invalid_argument("severity");
       }
     } catch (const exception &) {
